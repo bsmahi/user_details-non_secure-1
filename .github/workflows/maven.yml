@@ -37,15 +37,15 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/user-details-ga:${{ github.sha }} .      
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:${{ github.sha }} .      
     
     - name: Push Docker image to Docker Hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/user-details-ga:${{ github.sha }}
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:${{ github.sha }}
 
     - name: Tag the image with 'latest'
       run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/user-details-ga:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/user-details-ga:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/user-details-ga:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:latest
   
     - name: Run Docker Scout Action
       uses: docker/scout-action@v1
@@ -53,12 +53,12 @@ jobs:
           command: quickview,cves,recommendations
           organization: bhargavivennam
           # token: ${{ secrets.DOCKER_SCOUT_TOKEN }}  # Make sure you have this token set in your secrets
-          image: ${{ secrets.DOCKER_USERNAME }}/user-details-ga:latest 
+          image: ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:latest 
 
     - name: Run Trivy Vulnerability Scanner
       uses: aquasecurity/trivy-action@0.20.0
       with:
-          image-ref: 'docker.io/bhargavivennam/user-details-ga:${{ github.sha }}'
+          image-ref: 'docker.io/bhargavivennam/user-details-non-secure-ga:${{ github.sha }}'
           format: 'sarif'
           output: 'trivy-results.sarif'   
 
