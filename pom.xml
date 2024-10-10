@@ -18,6 +18,8 @@
         <poi.version>5.2.5</poi.version>
         <springdoc-openapi.version>2.2.0</springdoc-openapi.version>
         <spring-cloud.version>2023.0.2</spring-cloud.version>
+        <cucumber.version>7.11.0</cucumber.version>
+        <rest-assured.version>5.3.0</rest-assured.version>
     </properties>
     <dependencies>
         <!--SpringBoot Dependencies-->
@@ -117,6 +119,46 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Cucumber dependencies -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-spring</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- REST Assured for API testing -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Apache HttpClient (used by RestAssured) -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.13</version>
+        </dependency>
+
+        <!-- Apache HttpMime (for multipart file uploads) -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.13</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -191,6 +233,17 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*TestRunner.java</include>
+                    </includes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
