@@ -46,7 +46,22 @@ jobs:
       run: |
           docker tag ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:latest
-  
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-1
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Pull image from Amazon ECR
+      run: |
+        docker pull 818140567777.dkr.ecr.us-west-1.amazonaws.com/consultancyfirm/unsecure:latest
+
     - name: Run Docker Scout Action
       uses: docker/scout-action@v1
       with:
