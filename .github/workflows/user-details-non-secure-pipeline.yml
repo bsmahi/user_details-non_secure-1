@@ -68,8 +68,6 @@ jobs:
       run: |
         docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
                 -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga-${{ env.UNIQUE_TAG }} .
-        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga \
-                -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga-${{ env.UNIQUE_TAG }} .
         docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
         docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga
 
