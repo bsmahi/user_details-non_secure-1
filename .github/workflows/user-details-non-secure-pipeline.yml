@@ -14,6 +14,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  ECR_REGISTRY: 818140567777.dkr.ecr.us-west-1.amazonaws.com
+  ECR_REPOSITORY: consultancyfirm/unsecure
+  IMAGE_TAG: ${{ github.sha }} 
+  AWS_REGION: us-west-1
+
 jobs:
   build:
 
@@ -51,22 +57,18 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-1
+        aws-region: ${{ env.AWS_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
-      env:
-        ECR_REGISTRY: 818140567777.dkr.ecr.us-west-1.amazonaws.com
-        ECR_REPOSITORY: consultancyfirm/unsecure
-        IMAGE_TAG: ${{ github.sha }}        
+    - name: Build, tag, and push image to Amazon ECR       
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:user-details-non-secure-ga .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:user-details-non-secure-ga
+        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga .
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga
 
     - name: Run Docker Scout Action
       uses: docker/scout-action@v1
@@ -77,9 +79,9 @@ jobs:
           image: ${{ secrets.DOCKER_USERNAME }}/user-details-non-secure-ga:latest 
 
     - name: Run Trivy Vulnerability Scanner
-      uses: aquasecurity/trivy-action@0.20.0
+      uses: aquasecurity/trivy-action@master
       with:
-          image-ref: 'docker.io/bhargavivennam/user-details-non-secure-ga:${{ github.sha }}'
+          image-ref: '${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga'
           format: 'sarif'
           output: 'trivy-results.sarif'   
 
