@@ -66,10 +66,14 @@ jobs:
 
     - name: Build, tag, and push image to Amazon ECR       
       run: |
-        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
-                -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga-${{ env.UNIQUE_TAG }} .
-        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_TAG }} \
+             -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.UNIQUE_TAG }} .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:user-details-non-secure-ga \
+             -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.UNIQUE_TAG }} .
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
+             -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.UNIQUE_TAG }} .
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga \
+             -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.UNIQUE_TAG }} .
 
     - name: Run Docker Scout Action
       uses: docker/scout-action@v1
@@ -85,7 +89,6 @@ jobs:
           image-ref: '${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga'
           format: 'sarif'
           output: 'trivy-results.sarif'   
-
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
