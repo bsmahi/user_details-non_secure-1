@@ -64,9 +64,9 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}        
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:consulting-firm-app-ga .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:user-details-non-secure-ga .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:consulting-firm-app-ga
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:user-details-non-secure-ga
 
     - name: Run Docker Scout Action
       uses: docker/scout-action@v1
