@@ -19,6 +19,7 @@ env:
   ECR_REPOSITORY: consultancyfirm/unsecure
   IMAGE_TAG: ${{ github.sha }} 
   AWS_REGION: us-west-1
+  UNIQUE_TAG: ${{ github.sha }}-${{ github.run_number }}
 
 jobs:
   build:
@@ -65,8 +66,10 @@ jobs:
 
     - name: Build, tag, and push image to Amazon ECR       
       run: |
-        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
-        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga .
+        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
+                -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga-${{ env.UNIQUE_TAG }} .
+        docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga \
+                -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga-${{ env.UNIQUE_TAG }} .
         docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
         docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:user-details-non-secure-ga
 
