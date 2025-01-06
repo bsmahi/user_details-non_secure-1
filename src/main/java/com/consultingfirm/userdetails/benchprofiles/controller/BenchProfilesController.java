@@ -4,6 +4,7 @@ import com.consultingfirm.userdetails.benchprofiles.dto.BenchProfiles;
 import com.consultingfirm.userdetails.benchprofiles.model.BenchProfilesInfo;
 import com.consultingfirm.userdetails.benchprofiles.service.BenchProfilesService;
 import com.consultingfirm.userdetails.exception.UserNotFoundException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -51,9 +52,10 @@ public class BenchProfilesController {
         return new ResponseEntity<>("User details updated successfully.", HttpStatus.OK);
     }
 
+    @CircuitBreaker(name="myService",fallbackMethod = "fetchBenchProfileDetailsFallback")
     @GetMapping("/fetch-users")
     @Operation(summary = "Fetch Bench profiles User Details")
-    public ResponseEntity<List<BenchProfilesInfo>> fetchBenchProfileDetails() {
+    public ResponseEntity<List<BenchProfilesInfo>> fetchBenchProfileDetails() throws RuntimeException {
         Optional<List<BenchProfilesInfo>> users = benchProfilesService.getUserDetails();
 
         if (users.isEmpty() || users.get().isEmpty()) {
@@ -61,6 +63,14 @@ public class BenchProfilesController {
         }
 
         return new ResponseEntity<>(users.get(), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> fetchBenchProfileDetailsFallback(Exception e) {
+        String message = (e != null) ? e.getMessage() : "Service is temporarily unavailable.";
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body("Service is temporarily unavailable. Please try again later. Error: " + message);
     }
 
     @GetMapping("/fetch-users/{id}")

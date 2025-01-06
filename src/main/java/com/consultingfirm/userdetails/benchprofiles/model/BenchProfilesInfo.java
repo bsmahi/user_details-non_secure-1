@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class BenchProfilesInfo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID")
     private long id;
 

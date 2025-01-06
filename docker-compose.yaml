@@ -1,6 +1,52 @@
 version: '3.8'
 
 services:
+#  user-details, api-gateway, naming-server, spring-cloud-config, postgres, zipkin, prometheus, grafana
+
+  user-details-api-non-secure:
+    image: bhargavivennam/user-details-non-secure-ga:latest
+    ports:
+      - "8083:8083"
+    networks:
+      - consulting_firm_network
+    depends_on:
+      - naming-server
+      - postgres
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin-server:9411/api/v2/spans
+
+  api_gateway_service:
+    image: bhargavivennam/api-gateway-ga:latest
+    ports:
+      - "8081:8081"
+    networks:
+      - consulting_firm_network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin-server:9411/api/v2/spans
+
+  naming-server:
+    image: bhargavivennam/naming-server-ga:latest
+    ports:
+      - "8761:8761"
+    networks:
+      - consulting_firm_network
+
+#  spring-cloud-config-server:
+#    image: bhargavivennam/spring-cloud-config-server-ga:latest
+#    ports:
+#      - "8888:8888"
+#    networks:
+#      - consulting_firm_network
+#    depends_on:
+#      - naming-server
+#    environment:
+#      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+#      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin-server:9411/api/v2/spans
+
   postgres:
     image: postgres:16.2
     volumes:
@@ -12,31 +58,41 @@ services:
     networks:
       - consulting_firm_network
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:24.0.4
-    command: start
-    environment:
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: 9001
-      KC_HOSTNAME_STRICT_BACKCHANNEL: false
-      KC_HTTP_ENABLED: true
-      KC_HOSTNAME_STRICT_HTTPS: false
-      KC_HEALTH_ENABLED: true
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres/${POSTGRES_DB}
-      KC_DB_USERNAME: ${POSTGRES_USER}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+  zipkin-server:
+    image: openzipkin/zipkin:2.23
     ports:
-      - 9000:8080
-    restart: always
-    depends_on:
-      - postgres
+      - "9411:9411"
     networks:
       - consulting_firm_network
+    restart: always #Restart if there is a problem starting up
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3001:3000'
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: always
+
 volumes:
   postgres_data:
+    driver: local
+  grafana_data:
     driver: local
 
 networks:
